@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
     Wallet, ArrowDownLeft, ArrowUpRight, Headphones,
     PlayCircle, ShieldCheck, Zap, History, User,
@@ -14,6 +15,7 @@ import { SUPPORTED_CHAIN, USDT_CONTRACT_ADDRESS } from "@/lib/constants";
 
 export default function Dashboard() {
     const account = useActiveAccount();
+    const router = useRouter();
     const { data: balanceData, isLoading: isBalanceLoading } = useWalletBalance({
         client,
         chain: SUPPORTED_CHAIN,
@@ -23,39 +25,53 @@ export default function Dashboard() {
     const [rate, setRate] = useState(90.00);
 
     useEffect(() => {
+        if (!account) {
+            router.push("/login");
+        }
+    }, [account, router]);
+
+    useEffect(() => {
         fetch("/api/rate").then(res => res.json()).then(data => setRate(data.rate));
     }, []);
+
+    if (!account) return null;
 
     return (
         <main className="animate-in">
             <AppNavbar />
 
             <section className="balance-section">
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", width: "100%" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
                     <div>
                         <div className="balance-label">Available Balance</div>
                         <div className="balance-amount">
-                            {account ? (isBalanceLoading ? "Loading..." : `$${parseFloat(balanceData?.displayValue || "0").toFixed(2)}`) : "$0.00"}
+                            {isBalanceLoading ? "Loading..." : `$${parseFloat(balanceData?.displayValue || "0").toFixed(2)}`}
                         </div>
                         <div className="balance-inr">
-                            ≈ ₹{account ? (parseFloat(balanceData?.displayValue || "0") * rate).toLocaleString(undefined, { maximumFractionDigits: 0 }) : "0"}
+                            ≈ ₹{(parseFloat(balanceData?.displayValue || "0") * rate).toLocaleString(undefined, { maximumFractionDigits: 0 })}
                         </div>
                     </div>
-                    <ConnectButton
-                        client={client}
-                        theme="light"
-                        connectButton={{
-                            label: "Login",
-                            style: { borderRadius: "12px", fontSize: "12px", padding: "8px 16px", background: "white", color: "var(--accent-primary)", fontWeight: "700" }
-                        }}
-                    />
+                    <div style={{
+                        background: "rgba(255,255,255,0.2)",
+                        padding: "8px 12px",
+                        borderRadius: "12px",
+                        fontSize: "10px",
+                        fontWeight: "700",
+                        color: "white",
+                        border: "1px solid rgba(255,255,255,0.3)"
+                    }}>
+                        {account.address.slice(0, 6)}...{account.address.slice(-4)}
+                    </div>
                 </div>
             </section>
 
             <section className="action-grid">
-                <div className="icon-btn">
+                <div className="icon-btn" style={{ position: "relative" }}>
                     <div className="icon-circle"><Wallet size={20} /></div>
                     <span className="icon-label">Wallet</span>
+                    <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", opacity: 0 }}>
+                        <ConnectButton client={client} theme="light" />
+                    </div>
                 </div>
                 <Link href="/app/deposit" className="icon-btn">
                     <div className="icon-circle"><ArrowUpRight size={20} /></div>
