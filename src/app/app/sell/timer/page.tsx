@@ -80,7 +80,7 @@ export default function SellTimerPage() {
                         <div style={{ display: "flex", gap: "10px" }}>
                             <div style={{ width: 24, height: 24, borderRadius: "50%", background: "var(--accent-primary)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px", fontWeight: "700", flexShrink: 0 }}>2</div>
                             <div style={{ fontSize: "12px", color: "var(--text-secondary)" }}>
-                                Once confirmed, click <b>"I have sent"</b>.
+                                Once confirmed, click <b>&quot;I have sent&quot;</b>.
                             </div>
                         </div>
                     </div>
