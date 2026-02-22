@@ -8,9 +8,18 @@ import {
     ShoppingCart, Store
 } from "lucide-react";
 import { AppNavbar } from "@/components/app/AppNavbar";
+import { ConnectButton, useActiveAccount, useWalletBalance } from "thirdweb/react";
+import { client } from "@/lib/thirdweb";
+import { SUPPORTED_CHAIN, USDT_CONTRACT_ADDRESS } from "@/lib/constants";
 
 export default function Dashboard() {
-    const [balance] = useState(0.00);
+    const account = useActiveAccount();
+    const { data: balanceData, isLoading: isBalanceLoading } = useWalletBalance({
+        client,
+        chain: SUPPORTED_CHAIN,
+        address: account?.address,
+        tokenAddress: USDT_CONTRACT_ADDRESS,
+    });
     const [rate, setRate] = useState(90.00);
 
     useEffect(() => {
@@ -22,9 +31,25 @@ export default function Dashboard() {
             <AppNavbar />
 
             <section className="balance-section">
-                <div className="balance-label">Available Balance</div>
-                <div className="balance-amount">${balance.toFixed(2)}</div>
-                <div className="balance-inr">≈ ₹{(balance * rate).toFixed(2)}</div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", width: "100%" }}>
+                    <div>
+                        <div className="balance-label">Available Balance</div>
+                        <div className="balance-amount">
+                            {account ? (isBalanceLoading ? "Loading..." : `$${parseFloat(balanceData?.displayValue || "0").toFixed(2)}`) : "$0.00"}
+                        </div>
+                        <div className="balance-inr">
+                            ≈ ₹{account ? (parseFloat(balanceData?.displayValue || "0") * rate).toLocaleString(undefined, { maximumFractionDigits: 0 }) : "0"}
+                        </div>
+                    </div>
+                    <ConnectButton
+                        client={client}
+                        theme="light"
+                        connectButton={{
+                            label: "Login",
+                            style: { borderRadius: "12px", fontSize: "12px", padding: "8px 16px", background: "white", color: "var(--accent-primary)", fontWeight: "700" }
+                        }}
+                    />
+                </div>
             </section>
 
             <section className="action-grid">
@@ -32,14 +57,14 @@ export default function Dashboard() {
                     <div className="icon-circle"><Wallet size={20} /></div>
                     <span className="icon-label">Wallet</span>
                 </div>
-                <div className="icon-btn">
+                <Link href="/app/deposit" className="icon-btn">
                     <div className="icon-circle"><ArrowUpRight size={20} /></div>
                     <span className="icon-label">Deposit</span>
-                </div>
-                <div className="icon-btn">
+                </Link>
+                <Link href="/app/withdraw" className="icon-btn">
                     <div className="icon-circle"><ArrowDownLeft size={20} /></div>
                     <span className="icon-label">Withdraw</span>
-                </div>
+                </Link>
                 <Link href="/app/settings" className="icon-btn">
                     <div className="icon-circle"><User size={20} /></div>
                     <span className="icon-label">Settings</span>
