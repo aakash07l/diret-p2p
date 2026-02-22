@@ -54,9 +54,6 @@ export default function LoginPage() {
                     client={client}
                     chain={SUPPORTED_CHAIN}
                     theme="light"
-                    auth={{
-                        isLoading: false,
-                    }}
                 />
             </div>
 
